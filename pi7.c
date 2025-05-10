@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <omp.h>
+#include <stdbool.h>
 
 long long num_steps = 10000000;
 double step;
@@ -10,6 +11,7 @@ int main(int argc, char* argv[])
 	clock_t spstart, spstop,ppstart,ppstop;
 	
 	double sswtime, sewtime, pswtime, pewtime;
+	FILE* plik_out;
 //volatile
 	double pi, sum=0.0;
 	double tSum[51];
@@ -36,9 +38,18 @@ int main(int argc, char* argv[])
 	printf("Czas trwania obliczen sekwencyjnych - wallclock %f sekund \n",  sewtime-sswtime);
 
 	
-	
+	bool addHeaderFlag = false;
+	plik_out = fopen("wyniki7.csv", "r")	;
+	if(!plik_out) addHeaderFlag = true;
+	else fclose(plik_out);
 
-	// for(i=0;i<50;i++) tSum[i]=0;
+	plik_out = fopen("wyniki7.csv", "a");
+	if(addHeaderFlag) {
+		fprintf(plik_out,"Program,Czas procesorów przetwarzania sekwencyjnego,Czas procesorów przetwarzania równoległego,Czas obliczeń sekwencyjnych,Czas obliczeń równoległych,Pierwszy indeks tablicy,Drugi indeks tablicy, Przyspieszenie\n");
+
+	}
+
+	for(i=0;i<50;i++) tSum[i]=0;
 	for(int offset=0;offset<49;offset++) {
 		tSum[offset] =0;
 		tSum[offset+2] =0;
@@ -80,6 +91,9 @@ int main(int argc, char* argv[])
 		printf("Czas procesorów przetwarzania równoleglego  %f sekund \n", ((double)(ppstop - ppstart)/CLOCKS_PER_SEC));
 		printf("Czas trwania obliczen rownoleglych - wallclock %f sekund \n", pewtime-pswtime);
 		printf("Przyspieszenie %5.3f \n", (sewtime - sswtime) / (pewtime - pswtime));
+
+
+		fprintf(plik_out,"pi7,%f,%f,%f,%f,%d, %d,%f\n",((double)(spstop - spstart)/CLOCKS_PER_SEC), ((double)(ppstop - ppstart)/CLOCKS_PER_SEC), sewtime-sswtime, pewtime - pswtime, offset, offset+2 , (sewtime - sswtime) / (pewtime - pswtime));
 	}
 	return 0;
 }
