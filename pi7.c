@@ -12,7 +12,7 @@ int main(int argc, char* argv[])
 	double sswtime, sewtime, pswtime, pewtime;
 //volatile
 	double pi, sum=0.0;
-	volatile double tSum[50];
+	double tSum[51];
 	int threadNo;
 	int i;
 //SEKWENCYJNIE
@@ -36,12 +36,13 @@ int main(int argc, char* argv[])
 	printf("Czas trwania obliczen sekwencyjnych - wallclock %f sekund \n",  sewtime-sswtime);
 
 	
-	for(i=0;i<50;i++) tSum[i]=0;
+	
 
+	// for(i=0;i<50;i++) tSum[i]=0;
 	for(int offset=0;offset<49;offset++) {
 		tSum[offset] =0;
-		tSum[offset+1] =0;
-
+		tSum[offset+2] =0;
+		sum=0.0;
 
 		pswtime = omp_get_wtime();
 		ppstart = clock();
@@ -51,24 +52,30 @@ int main(int argc, char* argv[])
 		{
 			step = 1. / (double)num_steps;
 			threadNo = omp_get_thread_num();
-			// #pragma omp for reduction(+ : sum)
-			for (i = threadNo; i < num_steps; i+=2)
+			#pragma omp for 
+			for (i = 0; i < num_steps; i++)
 			{
 
 				double x;
-				x = (i + .5) * step;
+				x= (i + .5) * step;
 
-				#pragma omp atomic
-				tSum[threadNo+offset] += 4.0 / (1. + x * x);
+				#pragma omp flush
+				tSum[(threadNo*2)+offset] += 4.0 / (1. + x * x);
 			}
+
+			#pragma omp atomic
+			sum+=tSum[offset+(threadNo*2)];
+
+
+
 		}
 		
-		pi = (tSum[offset]+tSum[offset+1]) * step;
+		pi = sum * step;
 
 		ppstop = clock();
 		pewtime = omp_get_wtime();
 
-		printf("Obliczenia równoległe dla komórek: %d i %d\n", offset, offset+1);
+		printf("Obliczenia równoległe dla komórek: %d i %d\n", offset, offset+2);
 		printf("%15.12f Wartosc liczby PI rownolegle \n",pi);
 		printf("Czas procesorów przetwarzania równoleglego  %f sekund \n", ((double)(ppstop - ppstart)/CLOCKS_PER_SEC));
 		printf("Czas trwania obliczen rownoleglych - wallclock %f sekund \n", pewtime-pswtime);

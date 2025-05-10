@@ -8,8 +8,9 @@ int main() {
 	{
 		printf("my id= %d \n", omp_get_thread_num());
 		printf("Hello World\n");
-		for (i = 0; i < 6; i++)
-			printf("Iter:%d\n", i);
+		#pragma omp for schedule(static)
+		for (i = 0; i < 12; i++)
+			printf("Iter:%d id: %d\n", i, omp_get_thread_num());
 
 		printf("GoodBye World\n");
 	}

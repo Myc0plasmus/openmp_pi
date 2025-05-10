@@ -1,11 +1,12 @@
 hello
 pi
 pi1
-pi1_static_periodic
-pi1_static_block
-pi1_dynamic_default
-pi1_dynamic_parametrized
-pi1_runtime
+hello_default
+hello_static_periodic
+hello_static_block
+hello_dynamic_default
+hello_dynamic_parametrized
+hello_runtime
 pi2
 pi3
 pi4
