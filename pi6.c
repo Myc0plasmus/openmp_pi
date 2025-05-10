@@ -37,14 +37,14 @@ int main(int argc, char* argv[])
 
 
 	for(i=0;i<50;i++) tSum[i]=0;
-	int num_of_threads = 4;
+	int num_of_threads = 8;
 	omp_set_num_threads(num_of_threads);
 	sum = 0.0;
 
 	pswtime = omp_get_wtime();
 	ppstart = clock();
 //RÓWNOLEGLE
-	#pragma omp parallel shared(tSum) private (threadNo) num_threads(2)
+	#pragma omp parallel shared(tSum) private (threadNo) 
 	{
 		step = 1. / (double)num_steps;
 		threadNo = omp_get_thread_num();
@@ -81,10 +81,10 @@ int main(int argc, char* argv[])
 
 	plik_out = fopen("wyniki.csv", "a");
 	if(addHeaderFlag) {
-		fprintf(plik_out,"Program,Czas procesorów przetwarzania sekwencyjnego,Czas procesorów przetwarzania równoległego,Czas obliczeń sekwencyjnych,Czas obliczeń równoległych,Liczba wątków, Przyspieszenie\n");
+		fprintf(plik_out,"Program,Czas procesorów przetwarzania sekwencyjnego,Czas procesorów przetwarzania równoległego,Czas obliczeń sekwencyjnych,Czas obliczeń równoległych,Liczba wątków, Przyspieszenie, Liczba kroków\n");
 
 	}
-	fprintf(plik_out,"pi6,%f,%f,%f,%f,%d,%f\n",((double)(spstop - spstart)/CLOCKS_PER_SEC), ((double)(ppstop - ppstart)/CLOCKS_PER_SEC), sewtime-sswtime, pewtime - pswtime, num_of_threads, (sewtime - sswtime) / (pewtime - pswtime));
+	fprintf(plik_out,"pi6,%f,%f,%f,%f,%d,%f,%d\n",((double)(spstop - spstart)/CLOCKS_PER_SEC), ((double)(ppstop - ppstart)/CLOCKS_PER_SEC), sewtime-sswtime, pewtime - pswtime, num_of_threads, (sewtime - sswtime) / (pewtime - pswtime),num_steps);
 
 	return 0;
 }

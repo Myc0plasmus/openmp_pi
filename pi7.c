@@ -45,7 +45,7 @@ int main(int argc, char* argv[])
 
 	plik_out = fopen("wyniki7.csv", "a");
 	if(addHeaderFlag) {
-		fprintf(plik_out,"Program,Czas procesorów przetwarzania sekwencyjnego,Czas procesorów przetwarzania równoległego,Czas obliczeń sekwencyjnych,Czas obliczeń równoległych,Pierwszy indeks tablicy,Drugi indeks tablicy, Przyspieszenie\n");
+		fprintf(plik_out,"Program,Czas procesorów przetwarzania sekwencyjnego,Czas procesorów przetwarzania równoległego,Czas obliczeń sekwencyjnych,Czas obliczeń równoległych,Pierwszy indeks tablicy,Drugi indeks tablicy, Przyspieszenie, Liczba kroków\n");
 
 	}
 
@@ -93,7 +93,7 @@ int main(int argc, char* argv[])
 		printf("Przyspieszenie %5.3f \n", (sewtime - sswtime) / (pewtime - pswtime));
 
 
-		fprintf(plik_out,"pi7,%f,%f,%f,%f,%d, %d,%f\n",((double)(spstop - spstart)/CLOCKS_PER_SEC), ((double)(ppstop - ppstart)/CLOCKS_PER_SEC), sewtime-sswtime, pewtime - pswtime, offset, offset+2 , (sewtime - sswtime) / (pewtime - pswtime));
+		fprintf(plik_out,"pi7,%f,%f,%f,%f,%d, %d,%f,%d\n",((double)(spstop - spstart)/CLOCKS_PER_SEC), ((double)(ppstop - ppstart)/CLOCKS_PER_SEC), sewtime-sswtime, pewtime - pswtime, offset, offset+2 , (sewtime - sswtime) / (pewtime - pswtime),num_steps);
 	}
 	return 0;
 }

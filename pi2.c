@@ -72,10 +72,10 @@ int main(int argc, char* argv[])
 	
 	plik_out = fopen("wyniki.csv", "a");
 	if(addHeaderFlag) {
-		fprintf(plik_out,"Program,Czas procesorów przetwarzania sekwencyjnego,Czas procesorów przetwarzania równoległego,Czas obliczeń sekwencyjnych,Czas obliczeń równoległych,Liczba wątków, Przyspieszenie\n");
+		fprintf(plik_out,"Program,Czas procesorów przetwarzania sekwencyjnego,Czas procesorów przetwarzania równoległego,Czas obliczeń sekwencyjnych,Czas obliczeń równoległych,Liczba wątków, Przyspieszenie, Liczba kroków\n");
 
 	}
-	fprintf(plik_out,"pi2,%f,%f,%f,%f,%d,%f\n",((double)(spstop - spstart)/CLOCKS_PER_SEC), ((double)(ppstop - ppstart)/CLOCKS_PER_SEC), sewtime-sswtime, pewtime - pswtime, num_of_threads, (sewtime - sswtime) / (pewtime - pswtime));
+	fprintf(plik_out,"pi2,%f,%f,%f,%f,%d,%f,%d\n",((double)(spstop - spstart)/CLOCKS_PER_SEC), ((double)(ppstop - ppstart)/CLOCKS_PER_SEC), sewtime-sswtime, pewtime - pswtime, num_of_threads, (sewtime - sswtime) / (pewtime - pswtime), num_steps);
 
 	return 0;
 }
