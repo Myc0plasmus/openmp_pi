@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <time.h>
 #include <omp.h>
+#include <stdbool.h>
 
-long long num_steps = 10000000;
+long long num_steps = 1000000000;
 double step;
 
 int main(int argc, char* argv[])
@@ -10,9 +11,10 @@ int main(int argc, char* argv[])
 	clock_t spstart, spstop,ppstart,ppstop;
 	
 	double sswtime, sewtime, pswtime, pewtime;
+	FILE* plik_out;
 //volatile
 	double pi, sum=0.0;
-	double tSum[1025];
+	double tSum[50];
 	int i;
 	int threadNo;
 //SEKWENCYJNIE
@@ -30,32 +32,36 @@ int main(int argc, char* argv[])
 	pi = sum*step;
 
 	spstop = clock();
-   sewtime = omp_get_wtime();
-   printf("%15.12f artosc liczby PI sekwencyjnie \n", pi);
-   for(i=0;i<1025;i++) tSum[i]=0;
+	sewtime = omp_get_wtime();
+	printf("%15.12f artosc liczby PI sekwencyjnie \n", pi);
 
+
+	for(i=0;i<50;i++) tSum[i]=0;
+	int num_of_threads = 4;
+	omp_set_num_threads(num_of_threads);
+	sum = 0.0;
+
+	pswtime = omp_get_wtime();
+	ppstart = clock();
 //RÓWNOLEGLE
 	#pragma omp parallel shared(tSum) private (threadNo) num_threads(2)
 	{
-		pswtime = omp_get_wtime();
-		ppstart = clock();
-		sum = 0.0;
 		step = 1. / (double)num_steps;
 		threadNo = omp_get_thread_num();
-		#pragma omp for reduction(+ : sum)
+		#pragma omp for
 		for (i = 0; i < num_steps; i++)
 		{
 
-			double x;
-			x = (i + .5) * step;
+			double x = (i + .5) * step;
 			
+			#pragma omp flush
 			tSum[threadNo] += 4.0 / (1. + x * x);
 		}
+
+		#pragma omp atomic
+	    sum+=tSum[threadNo];
 	}
-	for(i=0;i<128;i++)
-	{
-	  sum+=tSum[i];
-	}
+
 	pi = sum * step;
 
 	ppstop = clock();
@@ -67,5 +73,18 @@ int main(int argc, char* argv[])
 	printf("Czas trwania obliczen sekwencyjnych - wallclock %f sekund \n",  sewtime-sswtime);
 	printf("Czas trwania obliczen rownoleglych - wallclock %f sekund \n", pewtime-pswtime);
 	printf("Przyspieszenie %5.3f \n", (sewtime - sswtime) / (pewtime - pswtime));
+	
+	bool addHeaderFlag = false;
+	plik_out = fopen("wyniki.csv", "r")	;
+	if(!plik_out) addHeaderFlag = true;
+	else fclose(plik_out);
+
+	plik_out = fopen("wyniki.csv", "a");
+	if(addHeaderFlag) {
+		fprintf(plik_out,"Program,Czas procesorów przetwarzania sekwencyjnego,Czas procesorów przetwarzania równoległego,Czas obliczeń sekwencyjnych,Czas obliczeń równoległych,Liczba wątków, Przyspieszenie\n");
+
+	}
+	fprintf(plik_out,"pi6,%f,%f,%f,%f,%d,%f\n",((double)(spstop - spstart)/CLOCKS_PER_SEC), ((double)(ppstop - ppstart)/CLOCKS_PER_SEC), sewtime-sswtime, pewtime - pswtime, num_of_threads, (sewtime - sswtime) / (pewtime - pswtime));
+
 	return 0;
 }

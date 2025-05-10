@@ -35,6 +35,7 @@ int main(int argc, char* argv[])
   
 
 //RÓWNOLEGLE 
+	
 	int num_of_threads = 8;
 	omp_set_num_threads(num_of_threads);
 	pswtime = omp_get_wtime();
@@ -42,12 +43,16 @@ int main(int argc, char* argv[])
 	sum = 0.0;
 	step = 1. / (double)num_steps;
 
-	for (i = 0; i < num_steps; i++)
+	#pragma omp parallel 
 	{
-		x = (i + .5) * step;
-		sum = sum + 4.0 / (1. + x * x);
-	}
+		#pragma omp for
+		for (i = 0; i < num_steps; i++)
+		{
+			x = (i + .5) * step;
+			sum = sum + 4.0 / (1. + x * x);
+		}
 
+	}
 	pi = sum * step;
 
 	ppstop = clock();
@@ -70,9 +75,7 @@ int main(int argc, char* argv[])
 		fprintf(plik_out,"Program,Czas procesorów przetwarzania sekwencyjnego,Czas procesorów przetwarzania równoległego,Czas obliczeń sekwencyjnych,Czas obliczeń równoległych,Liczba wątków, Przyspieszenie\n");
 
 	}
-	fprintf(plik_out,"pi1,%f,%f,%f,%f,%d,%f\n",((double)(spstop - spstart)/CLOCKS_PER_SEC), ((double)(ppstop - ppstart)/CLOCKS_PER_SEC), sewtime-sswtime, pewtime - pswtime, num_of_threads, (sewtime - sswtime) / (pewtime - pswtime));
-
-
+	fprintf(plik_out,"pi2,%f,%f,%f,%f,%d,%f\n",((double)(spstop - spstart)/CLOCKS_PER_SEC), ((double)(ppstop - ppstart)/CLOCKS_PER_SEC), sewtime-sswtime, pewtime - pswtime, num_of_threads, (sewtime - sswtime) / (pewtime - pswtime));
 
 	return 0;
 }
